@@ -11,6 +11,24 @@ const pool = new Pool({
   port: 5432,
 });
 
+const register = (req, res) => {
+  const { email, password } = req.body;
+
+  const text = "INSERT INTO users(email, password) VALUES($1, $2)";
+  const values = [email, password];
+
+  pool.query(text, values, (error, results) => {
+    if (error) {
+      if (error.code === '23505') {
+        res.status(400).json({ "error": "already registered" })
+        return;
+      }
+    }
+
+    res.status(201).json({ "status": "success" })
+  });
+};
+
 const login = (req, res) => {
   const { email, password } = req.body;
   
@@ -31,5 +49,6 @@ const login = (req, res) => {
 };
 
 module.exports = {
-  login
+  login, 
+  register
 }
