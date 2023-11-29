@@ -40,8 +40,11 @@ const login = (req, res) => {
     }
 
     if (results.rowCount) {
-      const token = jwt.sign({ foo: 'bar' }, SECRET, { expiresIn: '1h' });
-      res.status(200).json({ ...results.rows[0], token })
+      const result = results.rows[0];
+      const tokenData = { id: result.id };
+
+      const token = jwt.sign(tokenData, SECRET, { expiresIn: '1h' });
+      res.status(200).json({ token })
     } else {
       res.status(400).json({ "status": "error", "message": "not found" })
     }
