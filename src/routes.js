@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { login, register, getUser } = require('./controller/users');
-const { getCredentials, saveCredential } = require('./controller/credentials');
+const { getCredentials, saveCredential, deleteCredential } = require('./controller/credentials');
 
 const routes = express.Router();
 
@@ -11,5 +11,6 @@ routes.get('/user/', getUser);
 
 routes.get('/credential/:id', getCredentials);
 routes.post('/credential/', saveCredential);
+routes.delete('/credential/:id', deleteCredential);
 
 module.exports = routes;

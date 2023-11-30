@@ -41,7 +41,22 @@ const saveCredential = (req, res) => {
   })
 }
 
+const deleteCredential = (req, res) => {
+  const { id } = req.params;
+
+  const text = `DELETE FROM credentials WHERE id = ${id}`;
+
+  pool.query(text, (error, results) => {
+    if (error) {
+      throw error;
+    }
+
+    res.status(201).json({ "status": "success", "message": "deleted" });
+  })
+}
+
 module.exports = {
   getCredentials,
-  saveCredential
+  saveCredential,
+  deleteCredential
 }
