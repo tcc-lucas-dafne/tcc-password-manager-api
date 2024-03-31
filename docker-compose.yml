@@ -1,0 +1,42 @@
+version: '2.24.0'
+
+services:
+  tcc-password-manager-api:
+    container_name: backend_password_manager
+    build: .
+    ports:
+      - 3001:3001
+    environment: 
+      PORT: 3001
+    env_file: .env
+    volumes:
+      - ./:/code
+      - node_modules:/code/node_modules
+    networks: 
+      - backend_password_manager
+    depends_on:
+      - db_password_manager
+
+
+  db_password_manager:
+    container_name: db_password_manager
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+    - "5432:5432"
+    env_file: .env
+    volumes:
+      -  postgresql_data:/var/lib/postgresql/data
+    networks: 
+      - backend_password_manager
+
+volumes: 
+  node_modules:
+  postgresql_data:
+
+networks: 
+  backend_password_manager:
