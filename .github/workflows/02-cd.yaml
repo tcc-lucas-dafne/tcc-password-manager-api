@@ -1,0 +1,80 @@
+name: CD
+
+# Alterar depois pra branch main
+on: pull_request
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy_homolog:
+    environment: homolog
+    name: 'Deploy to homolog'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "homolog-password-manager-api"
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          usedocker: true
+          docker_build_args: |
+            DB_URL
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+
+     #ZAP (290 estrelas)
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          token: ${{ secrets.TOKEN_GIT }}
+          docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
+          target: 'https://tcc-password-manager.vercel.app/'
+          cmd_options: '-a' #indica ataque ativo, onde o zap tenta atuar como um atacante em busca de vulnerabilidades
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap_scan
+          path: ${{ github.workspace }}/reports
+
+      # SQL MAP
+      - name: Prepare environment
+        run: |
+          echo "START_DATE=$(date +'%d-%m-%YT%H-%M-%S-%Z')" >> $GITHUB_ENV
+          echo "START_TIMESTAMP=$(date +'%s')" >> $GITHUB_ENV
+          TMP_TARGET="https://tcc-password-manager.vercel.app/"
+          echo "TARGET=$TMP_TARGET" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Scan with sqlmap
+        uses: thereisnotime/action-sqlmap@master
+        with:
+          url: ${{ env.TARGET }}
+          additional_args: "--batch --crawl=2 --random-agent --forms --level=5 --risk=3"
+
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: GitHub Actions
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          message: "👷 chore(sqlmap): add report for ${{ env.TARGET }}-${{ env.START_DATE }}-${{ env.START_TIMESTAMP }}"
+          add: "./reports"
+          pull: "--rebase --autostash"
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Upload Test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Depcheck report
+          path:  ${{github.workspace}}/reports
