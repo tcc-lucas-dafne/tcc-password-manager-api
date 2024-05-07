@@ -1,7 +1,9 @@
 name: CD
 
 # Alterar depois pra branch main
-on: pull_request
+on: 
+  push:
+    branches: [2-criar-pipeline-ci-cd]
 
 defaults:
   run:
