@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 const corsOptions = {
-  origin: 'https://tcc-password-manager-n78y6rcv4-dafnes-projects-beb40209.vercel.app',
+  origin: 'https://tcc-password-manager.vercel.app/',
   optionsSuccessStatus: 200,
 };
 
