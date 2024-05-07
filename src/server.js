@@ -8,13 +8,7 @@ const routes = require('./routes');
 const PORT = process.env.PORT || 3001;
 
 const app = express();
-
-const corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/api/v1', routes);
