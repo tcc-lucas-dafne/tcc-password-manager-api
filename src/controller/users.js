@@ -35,9 +35,6 @@ const login = (req, res) => {
   
   const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
 
-  console.log('Query:', text); // Log da consulta SQL
-  console.log(results.rowCount);
-
   pool.query(text, (error, results) => {
     if (error) {
       throw error;
