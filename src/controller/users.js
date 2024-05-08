@@ -30,9 +30,13 @@ const register = (req, res) => {
 };
 
 const login = (req, res) => {
+  console.log('aqui');
   const { email, password } = req.body;
   
   const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
+
+  console.log('Query:', text); // Log da consulta SQL
+  console.log(results.rowCount);
 
   pool.query(text, (error, results) => {
     if (error) {
