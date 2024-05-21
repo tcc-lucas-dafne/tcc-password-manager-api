@@ -9,6 +9,9 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: 5432,
+  ssl: {
+    rejectUnauthorized: false,
+  }
 });
 
 const register = (req, res) => {
@@ -30,6 +33,7 @@ const register = (req, res) => {
 };
 
 const login = (req, res) => {
+  console.log('aqui');
   const { email, password } = req.body;
   
   const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
@@ -40,6 +44,7 @@ const login = (req, res) => {
     }
 
     if (results.rowCount) {
+      console.log('aqui2');
       const result = results.rows[0];
       const tokenData = { id: result.id };
 
