@@ -1,0 +1,28 @@
+name: CD PROD
+
+on: 
+  push:
+    branches: [main]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy_homolog:
+    environment: homolog
+    name: 'Deploy to homolog'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "homolog-password-manager-api"
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          usedocker: true
+          docker_build_args: |
+            DB_URL_PROD
+        env:
+          DB_URL: ${{ secrets.DB_URL_PROD }}

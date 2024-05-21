@@ -1,0 +1,73 @@
+name: CI_SCA
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  sca_depcheck:
+    name: 'SCA - Owasp Dependency Check'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Config GitHub
+        run: |
+          git config --global user.email "${{secrets.GIT_USER_EMAIL}}"
+          git config --global user.name "${{secrets.GIT_USER_NAME}}"
+
+      - name: install npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TOKEN_GIT }}
+        run: npm ci
+
+      # SCA
+      
+      # OWASP DEPENDENCY CHECK
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: 'tcc-password-manager'
+          path: './'
+          format: 'HTML'
+          out: 'reports'
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Upload Test results
+        uses: actions/upload-artifact@v4
+        with:
+           name: Depcheck report
+           path:  ${{github.workspace}}
+
+      - name: Save Deṕcheck Report on Branch
+        if: always()
+        run: |
+          git clone "https://x-access-token:${{secrets.TOKEN_GIT}}@github.com/tcc-lucas-dafne/${{secrets.NAME_REPO_GIT}}" ${{secrets.NAME_REPO_GIT}}
+          cd ${{secrets.NAME_REPO_GIT}}
+          git checkout ${GITHUB_REF#refs/heads/}
+          current_date=$(date +%Y-%m-%d)
+          rm -rf reports/owasp_dependency_check/${current_date} && mkdir -p reports/owasp_dependency_check/${current_date}
+          cp -R ${{github.workspace}}/reports ./reports/owasp_dependency_check/${current_date}
+          git add .
+          git commit -m "Adicionando relatório no repositório ${{ github.event.repository.name }} ${{ github.ref_name }} [skip ci]"
+          git push origin ${GITHUB_REF#refs/heads/}
+      
+      - name: Save Depcheck Report on Develop
+        if: always()
+        run: |
+          if [ ! -d "${{secrets.NAME_REPO_GIT}}" ]; then
+            git clone "https://x-access-token:${{secrets.TOKEN_GIT}}@github.com/tcc-lucas-dafne/${{secrets.NAME_REPO_GIT}}" ${{secrets.NAME_REPO_GIT}}
+          fi
+          cd ${{secrets.NAME_REPO_GIT}}
+          git checkout develop
+          current_date=$(date +%Y-%m-%d)
+          rm -rf reports/owasp_dependency_check/${current_date} && mkdir -p reports/owasp_dependency_check/${current_date}
+          cp -R ${{github.workspace}}/reports reports/owasp_dependency_check/${current_date}
+          git add .
+          git commit -m "Adicionando relatório no repositório ${{ github.event.repository.name }} ${{ github.ref_name }} [skip ci]"
+          git push origin develop
