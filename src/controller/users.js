@@ -44,6 +44,7 @@ const login = (req, res) => {
     }
 
     if (results.rowCount) {
+      console.log('aqui2');
       const result = results.rows[0];
       const tokenData = { id: result.id };
 
