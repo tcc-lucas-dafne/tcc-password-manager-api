@@ -33,27 +33,27 @@ const register = (req, res) => {
 };
 
 const login = (req, res) => {
-  console.log('aqui');
   const { email, password } = req.body;
-  
+
   const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
 
   pool.query(text, (error, results) => {
     if (error) {
-      throw error;
+      console.error('Database query error', error);
+      res.status(500).json({ status: 'error', message: 'Internal server error' });
+      return;
     }
 
     if (results.rowCount) {
-      console.log('aqui2');
       const result = results.rows[0];
       const tokenData = { id: result.id };
 
       const token = jwt.sign(tokenData, SECRET, { expiresIn: '1h' });
-      res.status(200).json({ token })
+      res.status(200).json({ token });
     } else {
-      res.status(400).json({ "status": "error", "message": "not found" })
+      res.status(400).json({ status: 'error', message: 'User not found' });
     }
-  })
+  });
 };
 
 const getUser = (req, res) => {
