@@ -39,6 +39,7 @@ jobs:
           fetch-depth: 0 
       
       - name: SonarCloud Scan
+        if: always()
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GIT }} 
