@@ -23,7 +23,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.TOKEN_GIT }}
         run: npm ci
       
-      # OWASP DEPENDENCY CHECK
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
