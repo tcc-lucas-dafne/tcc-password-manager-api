@@ -32,11 +32,6 @@ docker-compose up
 
 Esta API estará rodando na porta 3001.
 
-<!-- ## Ambientes de produção
-
-- [Front-End]()
-- [Back-End]() -->
-
 ## Integrantes
 
 | Matricula | Nome | Github | E-mail |
