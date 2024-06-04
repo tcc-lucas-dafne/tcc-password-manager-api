@@ -1,0 +1,27 @@
+name: Release
+
+on: 
+  pull_request:
+    branches:
+      - main
+    types: [ closed ]
+    
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'Not a Release')
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Create .env
+        run: |
+            touch ./scripts/.env
+            echo TOKEN=${{ secrets.TOKEN_GIT }} >> ./scripts/.env
+            echo RELEASE_MAJOR=${{ contains(github.event.pull_request.labels.*.name, 'MAJOR RELEASE') }} >> ./scripts/.env
+            echo RELEASE_MINOR=${{ contains(github.event.pull_request.labels.*.name, 'MINOR RELEASE') }} >> ./scripts/.env
+            echo RELEASE_PATCH=${{ contains(github.event.pull_request.labels.*.name, 'PATCH RELEASE') }} >> ./scripts/.env
+
+      - name: Create Release
+        run: cd scripts && yarn install && node release.js
