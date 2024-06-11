@@ -1,0 +1,28 @@
+name: Legitify Analyze
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - name: Legitify Action
+        uses: Legit-Labs/legitify@main
+        with:
+          github_token: ${{ secrets.TOKEN_GIT }}
+          ignore-policies: |
+             non_admins_can_create_public_repositories
+             requires_status_checks
+          upload_code_scanning: true
+    
+      - name: "Upload SARIF as Code Scanning Results"
+        if: ${{ inputs.upload_code_scanning == 'true' }}
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: legitify-output.sarif
+          category: "legitify-report"
