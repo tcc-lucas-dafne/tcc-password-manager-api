@@ -1,7 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { config } from 'dotenv'
+config();
 
-const { login, register, getUser } = require('./controller/users');
-const { getCredentials, saveCredential, deleteCredential } = require('./controller/credentials');
+import { login, register, getUser } from './controller/users.js';
+import { getCredentials, saveCredential, deleteCredential } from './controller/credentials.js';
 
 const routes = express.Router();
 
@@ -13,4 +15,4 @@ routes.get('/credential/:id', getCredentials);
 routes.post('/credential/', saveCredential);
 routes.delete('/credential/:id', deleteCredential);
 
-module.exports = routes;
+export default routes;

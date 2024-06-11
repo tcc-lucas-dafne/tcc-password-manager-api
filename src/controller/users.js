@@ -1,20 +1,21 @@
-const Pool = require('pg').Pool
-const jwt = require('jsonwebtoken');
+import pkg from 'pg';
+import jwt from 'jsonwebtoken';
+import { config } from 'dotenv'
+config();
 
 const SECRET = process.env.SECRET;
 
+const { Pool } = pkg;
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
   host: process.env.POSTGRES_HOST,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: 5432,
-  ssl: {
-    rejectUnauthorized: false,
-  }
+  ...(process.env.POSTGRES_HOST !== "localhost" && { ssl: { rejectUnauthorized: false }})
 });
 
-const register = (req, res) => {
+export const register = (req, res) => {
   const { email, password } = req.body;
 
   const text = "INSERT INTO users(email, password) VALUES($1, $2)";
@@ -32,7 +33,7 @@ const register = (req, res) => {
   });
 };
 
-const login = (req, res) => {
+export const login = (req, res) => {
   const { email, password } = req.body;
 
   const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
@@ -56,14 +57,14 @@ const login = (req, res) => {
   });
 };
 
-const getUser = (req, res) => {
+export const getUser = (req, res) => {
   const { authorization } = req.headers;
 
   try {
     const token = authorization.split(' ')[1];
 
     const decoded = jwt.decode(token, SECRET);
-    if (decoded && decoded.id) {
+    if (decoded?.id) {
       const userId = decoded.id;
   
       const text = `SELECT id, email FROM users WHERE id='${userId}'`;
@@ -85,10 +86,4 @@ const getUser = (req, res) => {
   } catch (err) {
     res.status(400).json({ "status": "error", "message": "invalid authorization" });
   }
-}
-
-module.exports = {
-  login, 
-  register,
-  getUser
 }

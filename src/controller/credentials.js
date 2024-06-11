@@ -1,17 +1,18 @@
-const Pool = require('pg').Pool
+import pkg from 'pg';
+import { config } from 'dotenv'
+config();
 
+const { Pool } = pkg;
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
   host: process.env.POSTGRES_HOST,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: 5432,
-  ssl: {
-    rejectUnauthorized: false,
-  }
+  ...(process.env.POSTGRES_HOST !== "localhost" && { ssl: { rejectUnauthorized: false }})
 });
 
-const getCredentials = (req, res) => {
+export const getCredentials = (req, res) => {
   const { id } = req.params;
 
   if (Number.parseFloat(id)) {
@@ -29,7 +30,7 @@ const getCredentials = (req, res) => {
   }
 };
 
-const saveCredential = (req, res) => {
+export const saveCredential = (req, res) => {
   const { id, name, username, url, email, password } = req.body;
 
   const text = "INSERT INTO credentials(user_id, name, username, url, email, password) VALUES($1, $2, $3, $4, $5, $6)";
@@ -44,7 +45,7 @@ const saveCredential = (req, res) => {
   })
 }
 
-const deleteCredential = (req, res) => {
+export const deleteCredential = (req, res) => {
   const { id } = req.params;
 
   const text = `DELETE FROM credentials WHERE id = ${id}`;
@@ -56,10 +57,4 @@ const deleteCredential = (req, res) => {
 
     res.status(201).json({ "status": "success", "message": "deleted" });
   })
-}
-
-module.exports = {
-  getCredentials,
-  saveCredential,
-  deleteCredential
 }
