@@ -1,8 +1,12 @@
 name: "CodeQL"
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
-    branches: [develop]
+    branches: [ "develop" ]
+  schedule:
+    - cron: '21 13 * * 1'
 
 jobs:
   analyze:
@@ -30,6 +34,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
+        
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
