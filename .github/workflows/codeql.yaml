@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "develop" ]
   schedule:
-    - cron: '21 13 * * 1'
+    - cron: '37 18 * * 1'
 
 jobs:
   analyze:
@@ -25,16 +25,18 @@ jobs:
         include:
         - language: javascript-typescript
           build-mode: none
+         
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
-        
+      
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
