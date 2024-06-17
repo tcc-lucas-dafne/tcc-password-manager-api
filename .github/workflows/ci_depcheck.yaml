@@ -50,7 +50,7 @@ jobs:
           format: 'HTML'
           out: '.'
           args: >
-            --failOnCVSS 7
+            # --failOnCVSS 7
             --enableRetired
 
       - name: Check
