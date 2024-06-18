@@ -19,14 +19,15 @@ services:
   tcc-password-manager-db:
     image: postgres:latest
     restart: always
+    ports:
+      - "5433:5432"
     environment:
-      POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       SECRET: ${SECRET}
-    ports:
-      - "5432:5432"
+      PGDATA: postgres_data:/var/lib/postgresql/data
+    env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./sql-scripts:/docker-entrypoint-initdb.d
