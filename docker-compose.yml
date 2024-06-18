@@ -9,8 +9,8 @@ services:
     environment: 
       PORT: 3001
     volumes:
-      - ./:/code
-      - node_modules:/code/node_modules
+      - .:/app
+      - /app/node_modules
     networks: 
       - backend_password_manager
     depends_on:
