@@ -47,17 +47,19 @@ jobs:
         with:
           project: 'tcc-password-manager'
           path: './'
-          format: 'HTML'
-          out: '.'
+          format: 'ALL'
+          out: 'depcheck'
           args: >
             --enableRetired
-
-      - name: Check
-        run: ls
+            --nvdApiKey ${{ secrets.NVD_API_KEY }}
+      
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: depcheck/dependency-check-report.sarif
 
       - name: Upload Test results
         uses: actions/upload-artifact@v4
         with:
            name: Depcheck report
-           path:  ${{github.workspace}}
-      
+           path:  ${{github.workspace}}/depcheck
