@@ -95,7 +95,7 @@ jobs:
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
         with:
-          project: 'tcc-password-manager'
+          project: 'tcc-password-manager-api'
           path: './'
           format: 'ALL'
           out: 'depcheck'
