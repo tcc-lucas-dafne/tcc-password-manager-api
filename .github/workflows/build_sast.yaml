@@ -1,0 +1,44 @@
+name: Build and SAST
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build_sast:
+    name: 'build_sast'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Config GitHub
+        run: |
+          git config --global user.email "${{secrets.GIT_USER_EMAIL}}"
+          git config --global user.name "${{secrets.GIT_USER_NAME}}"
+
+      - name: Run npm audit
+        uses: oke-py/npm-audit-action@v2
+        with:
+          audit_level: low
+          create_issues: true
+          github_token: ${{ secrets.TOKEN_GIT }}
+          issue_labels: vulnerability
+
+      - name: Install npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TOKEN_GIT }}
+        run: npm ci
+
+      - name: SonarCloud
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+      
+      - name: SonarCloud Scan
+        if: always()
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GIT }} 
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
