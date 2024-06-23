@@ -1,4 +1,4 @@
-name: CI_BUILD_SAST
+name: BUILD and SAST
 
 on:
   pull_request:
