@@ -4,4 +4,4 @@ COPY . /app
 
 WORKDIR /app
 
-CMD ["sh","-c", "yarn install && yarn start"]
+CMD ["sh","-c", "npm install && npm start"]
