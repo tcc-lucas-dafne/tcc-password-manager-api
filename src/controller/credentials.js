@@ -20,7 +20,6 @@ export const getCredentials = (req, res) => {
 
   const token = authorization.split(' ')[1];
 
-  console.log(SECRET);
   const decoded = jwt.decode(token, SECRET);
 
   if (decoded.id && Number.parseFloat(decoded.id)) {
