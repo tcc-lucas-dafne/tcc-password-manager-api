@@ -1,22 +1,27 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors')
-require('dotenv').config()
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+
+import { config } from 'dotenv'
+config();
+
+import routes from './routes.js'; 
 
 const PORT = process.env.PORT || 3001;
 
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/api/v1', routes);
 
 app.get('/', (_, res) => {
   res.status(200);
   res.send({ "status": "success" });
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-module.exports = app;
+export default app;
