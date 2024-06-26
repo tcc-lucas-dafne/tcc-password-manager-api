@@ -1,6 +1,9 @@
 import pkg from 'pg';
+import jwt from 'jsonwebtoken';
 import { config } from 'dotenv'
 config();
+
+const SECRET = process.env.SECRET;
 
 const { Pool } = pkg;
 const pool = new Pool({
@@ -9,24 +12,29 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: 5432,
-  ...(process.env.POSTGRES_HOST !== "localhost" && { ssl: { rejectUnauthorized: false }})
+  ...(process.env.POSTGRES_HOST !== "localhost" && { ssl: { rejectUnauthorized: false } })
 });
 
 export const getCredentials = (req, res) => {
-  const { id } = req.params;
+  const { authorization } = req.headers;
 
-  if (Number.parseFloat(id)) {
-    const text = `SELECT * FROM credentials WHERE user_id = ${id}`;
+  const token = authorization.split(' ')[1];
+
+  console.log(SECRET);
+  const decoded = jwt.decode(token, SECRET);
+
+  if (decoded.id && Number.parseFloat(decoded.id)) {
+    const text = `SELECT * FROM credentials WHERE user_id = ${decoded.id}`;
 
     pool.query(text, (error, results) => {
       if (error) {
         throw error;
       }
-  
+
       res.status(200).json(results.rows)
     })
   } else {
-    res.status(400).json({ "status": "error", "message": "invalid id" })
+    res.status(401).json({ "status": "error", "message": "invalid token" });
   }
 };
 
