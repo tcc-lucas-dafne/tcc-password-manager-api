@@ -16,9 +16,10 @@ export const getCredentials = (req, res) => {
   const { id } = req.params;
 
   if (Number.parseFloat(id)) {
-    const text = `SELECT * FROM credentials WHERE user_id = ${id}`;
+    const text = `SELECT * FROM credentials WHERE user_id = $1`;
+    const values = [id]
 
-    pool.query(text, (error, results) => {
+    pool.query(text, values, (error, results) => {
       if (error) {
         throw error;
       }
@@ -48,9 +49,10 @@ export const saveCredential = (req, res) => {
 export const deleteCredential = (req, res) => {
   const { id } = req.params;
 
-  const text = `DELETE FROM credentials WHERE id = ${id}`;
+  const text = `DELETE FROM credentials WHERE id = $1`;
+  const values = [id]
 
-  pool.query(text, (error, results) => {
+  pool.query(text, values, (error, results) => {
     if (error) {
       throw error;
     }

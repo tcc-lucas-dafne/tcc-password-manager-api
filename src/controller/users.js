@@ -68,8 +68,10 @@ export const getUser = (req, res) => {
     if (decoded?.id) {
       const userId = decoded.id;
   
-      const text = `SELECT id, email FROM users WHERE id='${userId}'`;
-      pool.query(text, (error, results) => {
+      const text = `SELECT id, email FROM users WHERE id = $1`;
+      const values = [userId]
+
+      pool.query(text, values, (error, results) => {
         if (error) {
           throw error;
         }
