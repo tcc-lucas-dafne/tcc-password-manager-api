@@ -36,9 +36,10 @@ export const register = (req, res) => {
 export const login = (req, res) => {
   const { email, password } = req.body;
 
-  const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
+  const text = 'SELECT * FROM users WHERE email = $1 AND password = $2';
+  const values = [email, password];
 
-  pool.query(text, (error, results) => {
+  pool.query(text, values, (error, results) => {
     if (error) {
       console.error('Database query error', error);
       res.status(500).json({ status: 'error', message: 'Internal server error' });
