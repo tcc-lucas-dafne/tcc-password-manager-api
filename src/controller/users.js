@@ -1,6 +1,7 @@
 import pkg from 'pg';
 import jwt from 'jsonwebtoken';
 import { config } from 'dotenv'
+import logger from '../logger.js';
 config();
 
 const SECRET = process.env.SECRET;
@@ -17,6 +18,7 @@ const pool = new Pool({
 
 export const register = (req, res) => {
   const { email, password } = req.body;
+  logger.info(`Creating user with email ${email}`);
 
   const text = "INSERT INTO users(email, password) VALUES($1, $2)";
   const values = [email, password];
@@ -24,6 +26,7 @@ export const register = (req, res) => {
   pool.query(text, values, (error, results) => {
     if (error) {
       if (error.code === '23505') {
+        logger.error(`User with email ${email} already registered`, { metadata: error });
         res.status(400).json({ "error": "already registered" })
         return;
       }
@@ -35,12 +38,13 @@ export const register = (req, res) => {
 
 export const login = (req, res) => {
   const { email, password } = req.body;
+  logger.info(`User with email ${email} logged in`);
 
   const text = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`;
 
   pool.query(text, (error, results) => {
     if (error) {
-      console.error('Database query error', error);
+      logger.error(`Login error`, { metadata: error });
       res.status(500).json({ status: 'error', message: 'Internal server error' });
       return;
     }
@@ -52,6 +56,7 @@ export const login = (req, res) => {
       const token = jwt.sign(tokenData, SECRET, { expiresIn: '1h' });
       res.status(200).json({ token });
     } else {
+      logger.info(`User with email ${email} not found`);
       res.status(400).json({ status: 'error', message: 'User not found' });
     }
   });
