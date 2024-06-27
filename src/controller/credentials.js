@@ -1,7 +1,10 @@
 import pkg from 'pg';
+import jwt from 'jsonwebtoken';
 import { config } from 'dotenv';
 import logger from '../logger.js';
 config();
+
+const SECRET = process.env.SECRET;
 
 const { Pool } = pkg;
 const pool = new Pool({
@@ -10,27 +13,32 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: 5432,
-  ...(process.env.POSTGRES_HOST !== "localhost" && { ssl: { rejectUnauthorized: false }})
+  ...(process.env.POSTGRES_HOST !== "localhost" && { ssl: { rejectUnauthorized: false } })
 });
 
 export const getCredentials = (req, res) => {
-  const { id } = req.params;
+  const { authorization } = req.headers;
 
-  logger.info(`Fetching credentials for user ID: ${req.params.id}`);
-  if (Number.parseFloat(id)) {
-    const text = `SELECT * FROM credentials WHERE user_id = ${id}`;
+  const token = authorization.split(' ')[1];
 
-    pool.query(text, (error, results) => {
+  const decoded = jwt.verify(token, SECRET);
+
+  if (decoded.id && Number.parseFloat(decoded.id)) {
+    logger.info(`Fetching credentials for user ${decoded.id}`)
+    const text = `SELECT * FROM credentials WHERE user_id = $1`;
+    const values = [decoded.id]
+
+    pool.query(text, values, (error, results) => {
       if (error) {
         logger.error(`Error fetching credentials for user ID: ${req.params.id}`, { metadata: error });
         throw error;
       }
-  
+
       res.status(200).json(results.rows)
     })
   } else {
     logger.error(`Error fetching credentials for user ID: ${req.params.id}`);
-    res.status(400).json({ "status": "error", "message": "invalid id" })
+    res.status(401).json({ "status": "error", "message": "invalid token" });
   }
 };
 
@@ -55,9 +63,10 @@ export const deleteCredential = (req, res) => {
   const { id } = req.params;
   logger.info(`Creating credentials with id ${id}`);
 
-  const text = `DELETE FROM credentials WHERE id = ${id}`;
+  const text = `DELETE FROM credentials WHERE id = $1`;
+  const values = [id]
 
-  pool.query(text, (error, results) => {
+  pool.query(text, values, (error, results) => {
     if (error) {
       logger.error(`Error deleting credentials`, { metadata: error });
       throw error;
