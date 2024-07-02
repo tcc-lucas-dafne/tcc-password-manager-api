@@ -37,4 +37,4 @@ Esta API estará rodando na porta 3001.
 | Matricula | Nome | Github | E-mail |
 |-----------|------|--------|--------|
 |190026243|Dafne Moretti Moreira|[DafneM](https://github.com/DafneM)|moretti.dafne@gmail.com|
-||Lucas da Cunha Andrade|[nYCSTs](https://github.com/nYCSTs)|lucascandradex@protonmail.com|## Sobre
+|180105256|Lucas da Cunha Andrade|[nYCSTs](https://github.com/nYCSTs)|lucascandradex@protonmail.com|## Sobre
